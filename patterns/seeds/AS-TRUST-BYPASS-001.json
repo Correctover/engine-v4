@@ -1,0 +1,77 @@
+{
+  "pattern_id": "AS-TRUST-BYPASS-001",
+  "name": "MCP工具readOnlyHint信任边界绕过",
+  "category": "trust_boundary_bypass",
+  "severity": "high",
+  "cwe": "CWE-863",
+  "ccs_section": "runtime.trust.tool_annotation_validation",
+  "source_vulnerability": {
+    "project": "AgentScope",
+    "issue": "agentscope-ai/agentscope#2119",
+    "pr": "agentscope-ai/agentscope#2131",
+    "cve": null,
+    "discovered": "2026-07-17",
+    "description": "MCPTool.is_read_only 直接取自MCP服务器自报告的 tool.annotations.readOnlyHint，恶意服务器可绕过权限引擎"
+  },
+  "migration_count": 0,
+  "prerequisites": {
+    "entity_types": [
+      "MCP_TOOL_HANDLER",
+      "ValidationGate",
+      "TrustGate"
+    ],
+    "relation_types": [
+      "VALIDATES",
+      "FLOWS_INTO"
+    ],
+    "min_entities": 3
+  },
+  "dataflow_signature": {
+    "source": {
+      "type": "ExternalInput",
+      "name_pattern": "readOnlyHint|annotations|tool_annotations",
+      "properties": {
+        "source": "mcp_server_response"
+      }
+    },
+    "path": [
+      {
+        "type": "MCP_TOOL_HANDLER",
+        "role": "tool_registration",
+        "properties": {
+          "is_read_only": "from_server_hint"
+        }
+      },
+      {
+        "type": "TrustGate",
+        "role": "permission_check"
+      }
+    ],
+    "sink": {
+      "type": "ValidationGate",
+      "properties": {
+        "onFailure": "ignore",
+        "trust_source": "untrusted_server"
+      }
+    },
+    "taint_mode": "exact"
+  },
+  "constraints": {
+    "required_properties": [
+      "server_self_reported_readonly"
+    ],
+    "absence_of": [
+      "name_based_heuristic",
+      "destructive_operation_check"
+    ],
+    "deployment_mode": [
+      "server_multitenant",
+      "server_single"
+    ]
+  },
+  "remediation": "Add heuristic name-based checks: destructive operation names (delete,remove,write,execute,deploy,drop,kill) are never treated as read-only regardless of readOnlyHint.",
+  "references": [
+    "https://github.com/agentscope-ai/agentscope/pull/2131",
+    "https://github.com/agentscope-ai/agentscope/issues/2119"
+  ]
+}
