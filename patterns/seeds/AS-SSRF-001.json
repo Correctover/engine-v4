@@ -1,0 +1,77 @@
+{
+  "pattern_id": "AS-SSRF-001",
+  "name": "MCP客户端HTTP连接未校验URL致SSRF",
+  "category": "ssrf",
+  "severity": "high",
+  "cwe": "CWE-918",
+  "ccs_section": "runtime.network.url_validation",
+  "source_vulnerability": {
+    "project": "AgentScope",
+    "issue": "agentscope-ai/agentscope#2119",
+    "pr": "agentscope-ai/agentscope#2131",
+    "cve": null,
+    "discovered": "2026-07-17",
+    "description": "AgentScope _create_http_client() 将 HttpMCPConfig.url 直接传给 streamable_http_client()/sse_client()，无任何URL校验"
+  },
+  "migration_count": 0,
+  "prerequisites": {
+    "entity_types": [
+      "MCPServer",
+      "NetworkRequest"
+    ],
+    "relation_types": [
+      "FLOWS_INTO"
+    ],
+    "transport": [
+      "http",
+      "sse",
+      "streamable_http"
+    ],
+    "min_entities": 2
+  },
+  "dataflow_signature": {
+    "source": {
+      "type": "ConfigField",
+      "name_pattern": "url|endpoint|server_url|base_url",
+      "properties": {
+        "source": "config"
+      }
+    },
+    "path": [
+      {
+        "type": "MCPServer",
+        "role": "mcp_client_init"
+      },
+      {
+        "type": "NetworkRequest",
+        "role": "http_connection",
+        "operation": "streamable_http_client|sse_client"
+      }
+    ],
+    "sink": {
+      "type": "NetworkRequest",
+      "properties": {
+        "validated": false,
+        "sanitized": false
+      }
+    },
+    "taint_mode": "exact"
+  },
+  "constraints": {
+    "required_properties": [
+      "url_direct_pass"
+    ],
+    "absence_of": [
+      "url_validation",
+      "dns_check",
+      "private_ip_block",
+      "metadata_endpoint_block"
+    ],
+    "transport_type": "http"
+  },
+  "remediation": "Add URL validation before connection: validate scheme (http/https only), resolve DNS and check against RFC1918 private ranges, loopback, link-local, and cloud metadata endpoints (169.254.169.254).",
+  "references": [
+    "https://github.com/agentscope-ai/agentscope/pull/2131",
+    "https://github.com/agentscope-ai/agentscope/issues/2119"
+  ]
+}
