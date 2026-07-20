@@ -1,0 +1,122 @@
+{
+  "version": "4.0.0",
+  "description": "Correctover Pattern Migration Engine - Pattern Registry",
+  "patterns": [
+    {
+      "pattern_id": "PATH-TRAVERSAL-001",
+      "name": "MCP工具路径参数未校验",
+      "file": "definitions/PATH-TRAVERSAL-001.json",
+      "category": "path_traversal",
+      "severity": "critical",
+      "cwe": "CWE-22",
+      "status": "active",
+      "migration_count": 0,
+      "source": "generic"
+    },
+    {
+      "pattern_id": "TOOL-INJECTION-001",
+      "name": "MCP工具返回值直接用于命令执行",
+      "file": "definitions/TOOL-INJECTION-001.json",
+      "category": "command_injection",
+      "severity": "critical",
+      "cwe": "CWE-78",
+      "status": "active",
+      "migration_count": 0,
+      "source": "generic"
+    },
+    {
+      "pattern_id": "STDIO-INJECTION-001",
+      "name": "STDIO transport参数来源于外部输入",
+      "file": "definitions/STDIO-INJECTION-001.json",
+      "category": "stdio_injection",
+      "severity": "high",
+      "cwe": "CWE-78",
+      "status": "active",
+      "migration_count": 0,
+      "source": "generic"
+    },
+    {
+      "pattern_id": "SSRF-UNCHECKED-001",
+      "name": "MCP客户端URL来源未校验",
+      "file": "definitions/SSRF-UNCHECKED-001.json",
+      "category": "ssrf",
+      "severity": "high",
+      "cwe": "CWE-918",
+      "status": "active",
+      "migration_count": 0,
+      "source": "generic"
+    },
+    {
+      "pattern_id": "CREDENTIAL-LEAK-001",
+      "name": "MCP服务器环境变量泄露敏感密钥",
+      "file": "definitions/CREDENTIAL-LEAK-001.json",
+      "category": "credential_leak",
+      "severity": "high",
+      "cwe": "CWE-256",
+      "status": "active",
+      "migration_count": 0,
+      "source": "generic"
+    },
+    {
+      "pattern_id": "AS-SSRF-001",
+      "name": "MCP客户端HTTP连接未校验URL致SSRF",
+      "file": "seeds/AS-SSRF-001.json",
+      "category": "ssrf",
+      "severity": "high",
+      "cwe": "CWE-918",
+      "status": "active",
+      "migration_count": 0,
+      "source": "agentscope"
+    },
+    {
+      "pattern_id": "AS-RCE-001",
+      "name": "MCP STDIO客户端任意命令执行",
+      "file": "seeds/AS-RCE-001.json",
+      "category": "command_injection",
+      "severity": "critical",
+      "cwe": "CWE-78",
+      "status": "active",
+      "migration_count": 0,
+      "source": "agentscope"
+    },
+    {
+      "pattern_id": "AS-TRUST-BYPASS-001",
+      "name": "MCP工具readOnlyHint信任边界绕过",
+      "file": "seeds/AS-TRUST-BYPASS-001.json",
+      "category": "trust_boundary_bypass",
+      "severity": "high",
+      "cwe": "CWE-863",
+      "status": "active",
+      "migration_count": 0,
+      "source": "agentscope"
+    },
+    {
+      "pattern_id": "AS-CONTENT-INJECT-001",
+      "name": "MCP响应内容注入（工具返回值未清洗）",
+      "file": "seeds/AS-CONTENT-INJECT-001.json",
+      "category": "output_injection",
+      "severity": "high",
+      "cwe": "CWE-74",
+      "status": "active",
+      "migration_count": 0,
+      "source": "agentscope"
+    }
+  ],
+  "stats": {
+    "total_patterns": 9,
+    "categories": [
+      "path_traversal",
+      "command_injection",
+      "stdio_injection",
+      "ssrf",
+      "credential_leak",
+      "trust_boundary_bypass",
+      "output_injection"
+    ],
+    "sources": {
+      "generic": 5,
+      "agentscope": 4
+    },
+    "last_updated": "2026-07-20T13:50:00+08:00"
+  }
+}
