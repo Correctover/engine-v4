@@ -1,0 +1,49 @@
+{
+  "pattern_id": "SSRF-UNCHECKED-001",
+  "name": "MCP客户端URL来源未校验",
+  "category": "ssrf",
+  "severity": "high",
+  "cwe": "CWE-918",
+  "ccs_section": "4.4 - Network Security",
+  "source_vulnerability": {
+    "project": "context7",
+    "discovered": "2026-07-20",
+    "description": "从自动加载的项目配置中获取URL后直接fetch，无内网地址检查和scheme白名单"
+  },
+  "migration_count": 0,
+  "prerequisites": {
+    "required_entities": [
+      {
+        "type": "NetworkRequest",
+        "filters": {}
+      }
+    ],
+    "required_relations": []
+  },
+  "dataflow_signature": {
+    "source": {
+      "type": "MCPToolHandler",
+      "param_filter": {}
+    },
+    "sink": {
+      "type": "NetworkRequest"
+    },
+    "must_lack": [
+      "ValidationGate"
+    ]
+  },
+  "constraints": {
+    "url_source": [
+      "project_file",
+      "remote",
+      "user_input"
+    ],
+    "exclude_test_files": true
+  },
+  "remediation": "对网络请求URL执行：1)scheme白名单(仅允许https)；2)内网地址检查(禁止10.x/172.16.x/192.168.x/127.x)；3)DNS重绑定防护。",
+  "references": [
+    "CCS Section 4.4 - Network Security",
+    "OWASP AISVS C7.1",
+    "CWE-918"
+  ]
+}
