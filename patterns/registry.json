@@ -100,10 +100,32 @@
       "status": "active",
       "migration_count": 0,
       "source": "agentscope"
+    },
+    {
+      "pattern_id": "AS-GUARDRAIL-MISS-001",
+      "name": "Agent/工具缺少GuardrailProvider安全守卫",
+      "file": "seeds/AS-GUARDRAIL-MISS-001.json",
+      "category": "protection_missing",
+      "severity": "critical",
+      "cwe": "CWE-693",
+      "status": "active",
+      "migration_count": 0,
+      "source": "agentscope"
+    },
+    {
+      "pattern_id": "AS-IDEMPOTENCY-MISS-001",
+      "name": "工具定义缺少幂等性控制",
+      "file": "seeds/AS-IDEMPOTENCY-MISS-001.json",
+      "category": "idempotency_missing",
+      "severity": "high",
+      "cwe": "CWE-841",
+      "status": "active",
+      "migration_count": 0,
+      "source": "agentscope"
     }
   ],
   "stats": {
-    "total_patterns": 9,
+    "total_patterns": 11,
     "categories": [
       "path_traversal",
       "command_injection",
@@ -111,12 +133,14 @@
       "ssrf",
       "credential_leak",
       "trust_boundary_bypass",
-      "output_injection"
+      "output_injection",
+      "protection_missing",
+      "idempotency_missing"
     ],
     "sources": {
       "generic": 5,
-      "agentscope": 4
+      "agentscope": 6
     },
-    "last_updated": "2026-07-20T13:50:00+08:00"
+    "last_updated": "2026-07-20T15:00:00+08:00"
   }
 }

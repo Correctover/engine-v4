@@ -31,10 +31,10 @@ try {
 console.log('\n📋 Test 2: Pattern Registry');
 try {
   const registry = JSON.parse(fs.readFileSync(path.join(PATTERNS_DIR, 'registry.json'), 'utf-8'));
-  assert(registry.patterns.length === 9, `Patterns: ${registry.patterns.length} = 9`);
-  assert(registry.patterns.filter(p => p.source === 'agentscope').length === 4, 'AgentScope seeds: 4');
+  assert(registry.patterns.length === 11, `Patterns: ${registry.patterns.length} = 11`);
+  assert(registry.patterns.filter(p => p.source === 'agentscope').length === 6, 'AgentScope seeds: 6');
   assert(registry.patterns.filter(p => p.source === 'generic').length === 5, 'Generic: 5');
-  assert(registry.stats.total_patterns === 9, `Stats total: ${registry.stats.total_patterns}`);
+  assert(registry.stats.total_patterns === 11, `Stats total: ${registry.stats.total_patterns}`);
   for (const p of registry.patterns) {
     const fp = path.join(PATTERNS_DIR, p.file);
     assert(fs.existsSync(fp), `File exists: ${p.file}`);
@@ -141,7 +141,7 @@ try {
   const patterns = registry.patterns.filter(p => p.status === 'active')
     .map(p => JSON.parse(fs.readFileSync(path.join(PATTERNS_DIR, p.file), 'utf-8')));
   const matcher = new PatternMatcher(patterns);
-  assert(matcher.patterns.length === 9, `Matcher loaded ${matcher.patterns.length} patterns`);
+  assert(matcher.patterns.length === 11, `Matcher loaded ${matcher.patterns.length} patterns`);
   const { generateExample } = require(path.join(ENGINE_DIR, 'semantic/schema'));
   const exampleGraph = generateExample('tool_injection');
   const findings = matcher.match(exampleGraph);

@@ -1,0 +1,79 @@
+{
+  "pattern_id": "AS-GUARDRAIL-MISS-001",
+  "name": "Agent/工具缺少GuardrailProvider安全守卫",
+  "category": "protection_missing",
+  "severity": "critical",
+  "cwe": "CWE-693",
+  "ccs_section": "governance.guardrail_provider.missing",
+  "source_vulnerability": {
+    "project": "crewAI",
+    "issue": "crewAIInc/crewAI#4877",
+    "pr": null,
+    "cve": null,
+    "discovered": "2026-07-20",
+    "description": "crewAI GuardrailProvider 讨论：agent 定义中缺少 guardrail 配置，导致 tool 调用无强制执行的安全策略。safal207 的 GuardrailDecisionV1 spec 要求 decision_id = SHA-256(compact sorted JSON(claims))，expires_at 必须在 hash preimage 内。分离 GuardrailDecisionV1（执行前授权）vs ActionEnvelopeV1（执行后证据）"
+  },
+  "migration_count": 0,
+  "prerequisites": {
+    "entity_types": [
+      "MCPToolHandler",
+      "ValidationGate",
+      "ConfigField"
+    ],
+    "relation_types": [
+      "CONFIGURES",
+      "VALIDATES"
+    ],
+    "deployment_mode": [
+      "server_multitenant",
+      "server_single",
+      "desktop_app"
+    ],
+    "min_entities": 2
+  },
+  "dataflow_signature": {
+    "source": {
+      "type": "ConfigField",
+      "name_pattern": "agent|tool|guardrail|guard|security_config|safety",
+      "properties": {
+        "source": "config"
+      }
+    },
+    "path": [
+      {
+        "type": "MCPToolHandler",
+        "role": "tool_handler",
+        "properties": {
+          "has_side_effects": true,
+          "guardrail_provider": null
+        }
+      }
+    ],
+    "sink": {
+      "type": "ValidationGate",
+      "properties": {
+        "onFailure": "ignore",
+        "guardrail_decision": null,
+        "action_envelope": null
+      }
+    },
+    "taint_mode": "control"
+  },
+  "constraints": {
+    "required_properties": [
+      "has_side_effects"
+    ],
+    "absence_of": [
+      "guardrail_provider_config",
+      "guardrail_decision_fn",
+      "decision_id_calculation",
+      "action_envelope_generation"
+    ],
+    "matched_when": "MCPToolHandler 有 side-effect 操作但无 GuardrailProvider 配置。GuardrailDecisionV1 要求每笔带授权的 tool 调用必须生成 decision_id（content-addressed hash），expires_at 必须在 preimage 内，且区分执行前授权（GuardrailDecisionV1）和执行后证据（ActionEnvelopeV1）"
+  },
+  "remediation": "Add GuardrailProvider to agent definition: 1) Implement GuardrailDecisionV1 with decision_id=SHA-256(canonical_json(claims)), 2) Include expires_at in hash preimage to prevent tampering, 3) Separate pre-execution authorization (GuardrailDecisionV1) from post-execution evidence (ActionEnvelopeV1), 4) Use CKG (Constraint Knowledge Graph) for declarative authorization instead of imperative logic. Reference: crewAI#4877 converged spec by safal207, babyblueviper1, Yarmoluk.",
+  "references": [
+    "https://github.com/crewAIInc/crewAI/issues/4877",
+    "https://github.com/crewAIInc/crewAI/pull/6048"
+  ]
+}

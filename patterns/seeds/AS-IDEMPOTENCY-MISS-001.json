@@ -1,0 +1,81 @@
+{
+  "pattern_id": "AS-IDEMPOTENCY-MISS-001",
+  "name": "工具定义缺少幂等性控制",
+  "category": "idempotency_missing",
+  "severity": "high",
+  "cwe": "CWE-841",
+  "ccs_section": "governance.idempotency.missing_key",
+  "source_vulnerability": {
+    "project": "crewAI",
+    "issue": "crewAIInc/crewAI#5802",
+    "pr": "crewAIInc/crewAI#6048",
+    "cve": null,
+    "discovered": "2026-07-20",
+    "description": "crewAI Idempotency 讨论：生产环境中工具重复调用导致重复支付/邮件/交易等问题。讨论收敛到 idempotency_key_fn 放在 @tool decorator 上，key 从 tool 参数派生，claim 存在 durable storage 中。PR #6048 已有 25 个测试通过。azender1 质疑了可验证性——合理质疑，需要 evidence 证明 key 派生是确定性的"
+  },
+  "migration_count": 0,
+  "prerequisites": {
+    "entity_types": [
+      "MCPToolHandler",
+      "Parameter",
+      "ExecSink",
+      "FileOperation",
+      "NetworkRequest"
+    ],
+    "relation_types": [
+      "ACCEPTS",
+      "CONFIGURES",
+      "FLOWS_INTO"
+    ],
+    "min_entities": 2
+  },
+  "dataflow_signature": {
+    "source": {
+      "type": "MCPToolHandler",
+      "name_pattern": "tool|function|action|operation|command",
+      "properties": {
+        "has_idempotency_key": false,
+        "idempotency_key_fn": null
+      }
+    },
+    "path": [
+      {
+        "type": "Parameter",
+        "role": "tool_param",
+        "properties": {
+          "is_idempotency_key": false
+        }
+      }
+    ],
+    "sink": {
+      "type": "ExecSink",
+      "properties": {
+        "operation": "exec|spawn|run|write|delete|post|send|payment|checkout|charge",
+        "idempotency_checked": false,
+        "idempotency_claim_storage": null
+      }
+    },
+    "taint_mode": "control"
+  },
+  "constraints": {
+    "required_properties": [
+      "has_destructive_side_effects"
+    ],
+    "absence_of": [
+      "idempotency_key_fn",
+      "idempotency_parameter",
+      "idempotency_claim_storage",
+      "duplicate_detection"
+    ],
+    "deployment_mode": [
+      "server_multitenant",
+      "server_single"
+    ],
+    "matched_when": "Tool 有 destructive side-effect（exec/write/delete/post/send/charge）但缺少 idempotency_key_fn。Idempotency 要求在 @tool decorator 层声明 idempotency_key_fn，key 从 tool 参数确定性派生，claim 写入 durable storage。重复请求携带相同 key 应返回 cached result 而非重执行"
+  },
+  "remediation": "Add idempotency control: 1) Add idempotency_key_fn parameter to @tool decorator, 2) Derive key deterministically from tool parameters (canonical JSON sorted by key), 3) Store claims in durable storage with TTL, 4) Return cached result on duplicate key. Reference: crewAI#5802 discussion, PR #6048 (25 tests passing, CodeRabbit 6/10 approve).",
+  "references": [
+    "https://github.com/crewAIInc/crewAI/issues/5802",
+    "https://github.com/crewAIInc/crewAI/pull/6048"
+  ]
+}
