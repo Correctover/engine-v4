@@ -1,0 +1,76 @@
+{
+  "pattern_id": "AS-RCE-001",
+  "name": "MCP STDIO客户端任意命令执行",
+  "category": "command_injection",
+  "severity": "critical",
+  "cwe": "CWE-78",
+  "ccs_section": "runtime.exec.command_validation",
+  "source_vulnerability": {
+    "project": "AgentScope",
+    "issue": "agentscope-ai/agentscope#2119",
+    "pr": "agentscope-ai/agentscope#2131",
+    "cve": null,
+    "discovered": "2026-07-17",
+    "description": "AgentScope _initialize_client() 将 StdioMCPConfig.command 和 args 直接传给 StdioServerParameters，无任何校验"
+  },
+  "migration_count": 0,
+  "prerequisites": {
+    "entity_types": [
+      "MCPServer",
+      "ExecSink"
+    ],
+    "relation_types": [
+      "FLOWS_INTO",
+      "CONFIGURES"
+    ],
+    "transport": [
+      "stdio"
+    ],
+    "min_entities": 2
+  },
+  "dataflow_signature": {
+    "source": {
+      "type": "ConfigField",
+      "name_pattern": "command|cmd|exec|args",
+      "properties": {
+        "source": "config"
+      }
+    },
+    "path": [
+      {
+        "type": "MCPClient",
+        "role": "stdio_client_init"
+      },
+      {
+        "type": "ExecSink",
+        "role": "subprocess_spawn",
+        "operation": "StdioServerParameters|spawn|exec"
+      }
+    ],
+    "sink": {
+      "type": "ExecSink",
+      "properties": {
+        "validated": false,
+        "sanitized": false,
+        "allowlist_checked": false
+      }
+    },
+    "taint_mode": "exact"
+  },
+  "constraints": {
+    "required_properties": [
+      "direct_command_pass"
+    ],
+    "absence_of": [
+      "command_allowlist",
+      "shell_metacharacter_filter",
+      "env_var_filter"
+    ],
+    "transport_type": "stdio"
+  },
+  "remediation": "Three layers: 1) Command allowlist (npx,node,python,uvx), 2) Shell metacharacter blocking, 3) Sensitive env var filtering.",
+  "references": [
+    "https://github.com/agentscope-ai/agentscope/pull/2131",
+    "https://github.com/agentscope-ai/agentscope/issues/2119"
+  ]
+}
