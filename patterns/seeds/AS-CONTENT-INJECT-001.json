@@ -1,0 +1,79 @@
+{
+  "pattern_id": "AS-CONTENT-INJECT-001",
+  "name": "MCP响应内容注入（工具返回值未清洗）",
+  "category": "output_injection",
+  "severity": "high",
+  "cwe": "CWE-74",
+  "ccs_section": "runtime.output.content_sanitization",
+  "source_vulnerability": {
+    "project": "AgentScope",
+    "issue": "agentscope-ai/agentscope#2119",
+    "pr": "agentscope-ai/agentscope#2131",
+    "cve": null,
+    "discovered": "2026-07-17",
+    "description": "_convert_mcp_content_to_blocks() 直接将MCP服务器返回内容转为UI展示块，未做内容清洗或验证"
+  },
+  "migration_count": 0,
+  "prerequisites": {
+    "entity_types": [
+      "MCP_TOOL_HANDLER",
+      "LogOutput",
+      "ExternalInput"
+    ],
+    "relation_types": [
+      "FLOWS_INTO",
+      "RETURNS"
+    ],
+    "min_entities": 3
+  },
+  "dataflow_signature": {
+    "source": {
+      "type": "ExternalInput",
+      "name_pattern": "content|result|response|tool_output",
+      "properties": {
+        "source": "mcp_tool_response"
+      }
+    },
+    "path": [
+      {
+        "type": "MCP_TOOL_HANDLER",
+        "role": "tool_execution",
+        "properties": {
+          "returns_raw": true
+        }
+      },
+      {
+        "type": "LogOutput",
+        "role": "content_conversion"
+      }
+    ],
+    "sink": {
+      "type": "LogOutput",
+      "properties": {
+        "validated": false,
+        "sanitized": false,
+        "content_type_checked": false
+      }
+    },
+    "taint_mode": "transformed"
+  },
+  "constraints": {
+    "required_properties": [
+      "raw_content_passthrough"
+    ],
+    "absence_of": [
+      "content_sanitization",
+      "html_escape",
+      "prompt_injection_filter",
+      "content_type_validation"
+    ],
+    "attacker_capabilities": [
+      "crafted_tool_output"
+    ]
+  },
+  "remediation": "Sanitize MCP server response content: 1) Validate content types 2) HTML-escape text 3) Filter prompt injection patterns 4) Limit content size 5) Mark with untrusted boundary indicators.",
+  "references": [
+    "https://github.com/agentscope-ai/agentscope/pull/2131",
+    "https://github.com/agentscope-ai/agentscope/issues/2119"
+  ]
+}
