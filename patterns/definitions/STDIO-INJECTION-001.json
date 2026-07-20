@@ -1,0 +1,46 @@
+{
+  "pattern_id": "STDIO-INJECTION-001",
+  "name": "STDIO transport参数来源于外部输入",
+  "category": "stdio_injection",
+  "severity": "high",
+  "cwe": "CWE-78",
+  "ccs_section": "4.3 - Transport Security",
+  "source_vulnerability": {
+    "project": "AstrBot",
+    "issue": "#8860",
+    "discovered": "2026-07-17",
+    "description": "STDIO transport的spawn参数包含外部可控输入"
+  },
+  "migration_count": 0,
+  "prerequisites": {
+    "required_entities": [
+      {
+        "type": "ExecSink",
+        "filters": {
+          "operation": "spawn|exec|execSync"
+        }
+      }
+    ],
+    "required_relations": []
+  },
+  "dataflow_signature": {
+    "source": {
+      "type": "MCPToolHandler",
+      "param_filter": {}
+    },
+    "sink": {
+      "type": "ExecSink"
+    },
+    "must_lack": []
+  },
+  "constraints": {
+    "transport": "stdio",
+    "requires_spawn_with_stdio": true,
+    "exclude_test_files": true
+  },
+  "remediation": "STDIO transport的spawn参数不应来自用户可控输入。使用显式env白名单而非继承全部process.env。",
+  "references": [
+    "CCS Section 4.3 - Transport Security",
+    "MCP Spec: STDIO Transport"
+  ]
+}
