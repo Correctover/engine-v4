@@ -1,0 +1,57 @@
+{
+  "pattern_id": "PATH-TRAVERSAL-001",
+  "name": "MCP工具路径参数未校验",
+  "category": "path_traversal",
+  "severity": "critical",
+  "cwe": "CWE-22",
+  "ccs_section": "4.1 - Path Security",
+  "source_vulnerability": {
+    "project": "FastMCP",
+    "issue": "#4482",
+    "discovered": "2026-07-17",
+    "description": "MCP文件工具接受路径参数后直接传给fs.readFile，无path.resolve校验"
+  },
+  "migration_count": 0,
+  "prerequisites": {
+    "required_entities": [
+      {
+        "type": "MCPToolHandler",
+        "filters": {}
+      },
+      {
+        "type": "FileOperation",
+        "filters": {}
+      }
+    ],
+    "required_relations": [
+      {
+        "from_type": "MCPToolHandler",
+        "to_type": "FileOperation",
+        "relation": "flows_into"
+      }
+    ]
+  },
+  "dataflow_signature": {
+    "source": {
+      "type": "MCPToolHandler",
+      "param_filter": {
+        "isPathLike": true
+      }
+    },
+    "sink": {
+      "type": "FileOperation"
+    },
+    "must_lack": [
+      "ValidationGate"
+    ]
+  },
+  "constraints": {
+    "exclude_test_files": true
+  },
+  "remediation": "对路径参数使用 path.resolve() 规范化后，检查是否在允许目录内：const resolved = path.resolve(baseDir, userInput); if (!resolved.startsWith(path.resolve(baseDir))) throw new Error('Path traversal detected');",
+  "references": [
+    "CCS Section 4.1 - Path Security",
+    "OWASP AISVS C10.2",
+    "CWE-22"
+  ]
+}
