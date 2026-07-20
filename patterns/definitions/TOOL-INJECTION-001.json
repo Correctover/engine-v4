@@ -1,0 +1,55 @@
+{
+  "pattern_id": "TOOL-INJECTION-001",
+  "name": "MCP工具返回值直接用于命令执行",
+  "category": "command_injection",
+  "severity": "critical",
+  "cwe": "CWE-78",
+  "ccs_section": "4.2 - Command Injection",
+  "source_vulnerability": {
+    "project": "MiniMax",
+    "discovered": "2026-07-18",
+    "description": "工具返回值直接拼接到child_process.exec命令中，无输出过滤"
+  },
+  "migration_count": 0,
+  "prerequisites": {
+    "required_entities": [
+      {
+        "type": "MCPToolHandler",
+        "filters": {}
+      },
+      {
+        "type": "ExecSink",
+        "filters": {}
+      }
+    ],
+    "required_relations": [
+      {
+        "from_type": "MCPToolHandler",
+        "to_type": "ExecSink",
+        "relation": "flows_into"
+      }
+    ]
+  },
+  "dataflow_signature": {
+    "source": {
+      "type": "MCPToolHandler",
+      "param_filter": {}
+    },
+    "sink": {
+      "type": "ExecSink"
+    },
+    "must_lack": [
+      "ValidationGate",
+      "Sanitizer"
+    ]
+  },
+  "constraints": {
+    "exclude_test_files": true
+  },
+  "remediation": "命令参数必须经过白名单校验或shell转义。使用execFile替代exec，或使用参数数组形式避免注入。",
+  "references": [
+    "CCS Section 4.2 - Command Injection",
+    "OWASP AISVS C4.1",
+    "CWE-78"
+  ]
+}
